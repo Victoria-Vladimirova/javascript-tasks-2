@@ -35,7 +35,7 @@ module.exports.add = function add(name, phone, email) {
  */
 function findRecords(query) {
     var foundRecords = [];
-    query = query.toLowerCase();
+    query = (query || '').toLowerCase();
     for (var i = 0; i < phoneBook.length; i++) {
         if (phoneBook[i].name.toLowerCase().indexOf(query) >= 0 ||
             phoneBook[i].phone.indexOf(query) >= 0 ||
@@ -97,6 +97,10 @@ module.exports.showTable = function showTable() {
 
     var cellWidth = 30;
 
+    function repeatString(string, times) {
+        return new Array(times + 1).join(string);
+    }
+
     function chopString(string, len) {
         if (string.length <= len) {
             return string;
@@ -107,11 +111,8 @@ module.exports.showTable = function showTable() {
 
     function createLine(start, middle, end, line) {
         line = line || '─';
-        var cellWidthArray = new Array(cellWidth + 1);
-        return start + cellWidthArray.join(line) +
-            middle + cellWidthArray.join(line) +
-            middle + cellWidthArray.join(line) +
-            end + '\n';
+        var longLine = repeatString(line, cellWidth);
+        return start + longLine + middle + longLine + middle + longLine + end + '\n';
     }
 
 
@@ -136,16 +137,16 @@ module.exports.showTable = function showTable() {
         name = chopString(name, cellWidth - 1);
         email = chopString(email, cellWidth - 1);
 
-        return '│ ' + name + new Array(cellWidth - name.length).join(' ') +
-            '│ ' + phone + new Array(cellWidth - phone.length).join(' ') +
-            '│ ' + email + new Array(cellWidth - email.length).join(' ') +
+        return '│ ' + name + repeatString(' ', cellWidth - name.length - 1) +
+            '│ ' + phone + repeatString(' ', cellWidth - phone.length - 1) +
+            '│ ' + email + repeatString(' ', cellWidth - email.length - 1) +
             '│\n';
     }
 
     var header = [{name: 'Имя', phone: 'Телефон', email: 'email'}];
 
-    console.log(header.concat(phoneBook).reduce(function (prev, curr, idx, array) {
-        var result = prev + createTextLine(curr.name, curr.phone, curr.email);
+    console.log(header.concat(phoneBook).reduce(function (result, curr, idx, array) {
+        result = result + createTextLine(curr.name, curr.phone, curr.email);
         if (idx === 0) {
             result += createThickIntermediateLine();
         } else if (idx === array.length - 1) {
